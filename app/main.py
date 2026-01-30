@@ -199,10 +199,14 @@ def home(request: Request, q: Optional[str] = None):
     results: List[SearchResult] = []
     if query:
         results = _run_search(query, _is_authenticated(request))
+    rows = store.list_rows()
+    if not _is_authenticated(request):
+        rows = [row for row in rows if row.is_public]
 
     context = {
         "request": request,
         "results": results,
+        "rows": rows,
         "query": q or "",
         "is_authenticated": _is_authenticated(request),
         "page_title": "TheDocs",

@@ -1,61 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
 <section class="home-layout">
-  <div class="search-panel">
-    <h1>Search your markdown vault</h1>
-    <form class="search-form" method="get" action="/">
-      <label for="q">Search markdown content</label>
-      <div class="search-row">
-        <input
-          id="q"
-          name="q"
-          type="search"
-          placeholder='Try: "release notes"'
-          value="{{ query }}"
-          autocomplete="off"
-        />
+  <div class="home-left">
+    <div class="search-panel">
+      <h1>Search your markdown vault</h1>
+      <form class="search-form" method="get" action="/">
+        <label for="q">Search markdown content</label>
+        <div class="search-row">
+          <input
+            id="q"
+            name="q"
+            type="search"
+            placeholder='Try: "release notes"'
+            value="{{ query }}"
+            autocomplete="off"
+          />
+        </div>
+      </form>
+      <div class="search-meta">
+        <span id="resultCount">{{ results|length }}</span> hits
+        {% if is_authenticated %}
+        <span class="pill">Admin view</span>
+        {% else %}
+        <span class="pill">Public only</span>
+        {% endif %}
       </div>
-    </form>
-    <div class="search-meta">
-      <span id="resultCount">{{ results|length }}</span> hits
-      {% if is_authenticated %}
-      <span class="pill">Admin view</span>
-      {% else %}
-      <span class="pill">Public only</span>
-      {% endif %}
+    </div>
+    <div class="results-panel">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Snippet</th>
+            <th>Filename</th>
+          </tr>
+        </thead>
+        <tbody id="searchResults">
+          {% if results %}
+            {% for row in results %}
+            <tr>
+              <td>{{ row.snippet }}</td>
+              <td>
+                <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="2" class="empty-row">
+                {% if query %}
+                  No matches found.
+                {% else %}
+                  Type to search.
+                {% endif %}
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
     </div>
   </div>
-  <div class="results-panel">
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Snippet</th>
-          <th>Filename</th>
-        </tr>
-      </thead>
-      <tbody id="searchResults">
-        {% if results %}
-          {% for row in results %}
+  <div class="home-right">
+    <div class="results-panel">
+      <table class="results-table">
+        <thead>
           <tr>
-            <td>{{ row.snippet }}</td>
+            <th>Filename</th>
+            <th>Title</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
             <td>
               <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
             </td>
+            <td>{{ row.title or "-" }}</td>
+            <td>{{ row.description or "-" }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="3" class="empty-row">No files found.</td>
           </tr>
           {% endfor %}
-        {% else %}
-          <tr>
-            <td colspan="2" class="empty-row">
-              {% if query %}
-                No matches found.
-              {% else %}
-                Type to search.
-              {% endif %}
-            </td>
-          </tr>
-        {% endif %}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   </div>
 </section>
 {% endblock %}

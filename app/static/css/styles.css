@@ -126,9 +126,15 @@ a:hover {
 
 @media (min-width: 900px) {
   .home-layout {
-    grid-template-columns: 1fr 2fr;
+    grid-template-columns: 1fr 1fr;
     align-items: start;
   }
+}
+
+.home-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 .search-panel {
