@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-TheDocs is a FastAPI web app for indexing, searching, and viewing external markdown files with optional OpenAI-powered metadata enrichment. It uses Jinja2 templates, Loguru logging, and a CSV-based index for lightweight storage.
+TheDocs is a FastAPI web app for indexing, searching, and viewing external markdown files with optional OpenAI-powered metadata enrichment. It uses Jinja2 templates, Loguru logging, a CSV-based index, and defaults to a simple lexicon search unless Elasticsearch is enabled (see [Search Behavior](#search-behavior)).
 
 ## Setup
 
@@ -103,6 +103,18 @@ Note: Elasticsearch variables are optional. If `ELASTICSEARCH_URL` is not set, t
 
 - Prompt template for OpenAI metadata generation.
 - Must include `{markdown_file_content}` placeholder.
+
+## Search Behavior
+
+- Default search is lexicon-based and scans local markdown files (case-insensitive substring matching).
+- Elasticsearch is optional and requires no code changes.
+- To enable Elasticsearch:
+  - Set `ELASTICSEARCH_URL` in `.env`.
+  - Optionally set `ELASTICSEARCH_INDEX`, `ELASTICSEARCH_USERNAME`, `ELASTICSEARCH_PASSWORD`.
+  - Run Elasticsearch locally.
+- Query behavior:
+  - Plain text queries do partial word matches.
+  - Use double quotes for phrase search (e.g., `"release notes"`).
 
 ## References
 
