@@ -13,7 +13,7 @@ TheDocs is a FastAPI web app for indexing, searching, and viewing external markd
 ## Usage
 
 1. Set the required environment variables in `.env`.
-2. Start Elasticsearch locally (example Docker command):
+2. (Optional) Start Elasticsearch locally if you want semantic-style search snippets:
    - `docker run -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.12.2`
 3. Run the server: `uvicorn app.main:app --reload`.
    - use `./venv/bin/uvicorn app.main:app --reload` or `python -m uvicorn app.main:app --reload` locally.
@@ -66,18 +66,21 @@ GMAIL_SMTP_APP_PASSWORD=
 GMAIL_SMTP_HOST=
 GMAIL_SMTP_PORT=
 OPENAI_API_KEY=
-ELASTICSEARCH_URL=http://localhost:9200
-ELASTICSEARCH_INDEX=thedocs-markdown
-ELASTICSEARCH_USERNAME=
-ELASTICSEARCH_PASSWORD=
 SECRET_KEY=
 NAME_APP=TheDocs
 RUN_ENVIRONMENT=development
 PATH_TO_LOGS=
-TOKEN_TTL_MINUTES=15
 LOG_MAX_SIZE=5 MB
 LOG_MAX_FILES=5
+# Optional
+TOKEN_TTL_MINUTES=15
+ELASTICSEARCH_URL=http://localhost:9200
+ELASTICSEARCH_INDEX=thedocs-markdown
+ELASTICSEARCH_USERNAME=
+ELASTICSEARCH_PASSWORD=
 ```
+
+Note: Elasticsearch variables are optional. If `ELASTICSEARCH_URL` is not set, the app uses the built-in file scan search instead.
 
 ## External Files
 
