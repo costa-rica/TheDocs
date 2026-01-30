@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+  <h1>Admin login</h1>
+  <p>Enter your admin email to receive a verification link.</p>
+  {% if notice %}
+  <div class="notice">{{ notice }}</div>
+  {% endif %}
+  {% if error %}
+  <div class="notice error">{{ error }}</div>
+  {% endif %}
+  <form class="stack" method="post" action="/login">
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required />
+    <button type="submit">Send verification link</button>
+  </form>
+</section>
+{% endblock %}

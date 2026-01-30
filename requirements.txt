@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+jinja2
+python-dotenv
+loguru
+filelock
+openai
+markdown-it-py
+itsdangerous
+python-multipart

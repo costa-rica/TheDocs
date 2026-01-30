@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="viewer">
+  <div class="viewer-header">
+    <h1>{{ title or filename }}</h1>
+    <div class="viewer-meta">
+      <span class="pill">{{ filename }}</span>
+      {% if is_public %}
+      <span class="pill">Public</span>
+      {% else %}
+      <span class="pill">Private</span>
+      {% endif %}
+    </div>
+    {% if description %}
+    <p class="viewer-description">{{ description }}</p>
+    {% endif %}
+  </div>
+  <article class="markdown-body">
+    {{ content | safe }}
+  </article>
+</section>
+{% endblock %}

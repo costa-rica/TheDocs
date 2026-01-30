@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel wide">
+  <h1>Manage markdown files</h1>
+  {% if notice %}
+  <div class="notice">{{ notice }}</div>
+  {% endif %}
+  {% if error %}
+  <div class="notice error">{{ error }}</div>
+  {% endif %}
+
+  <details class="section" open>
+    <summary>Upload new file</summary>
+    <form class="stack" action="/manage/upload" method="post" enctype="multipart/form-data">
+      <label for="file">Markdown file (.md, .markdown)</label>
+      <input id="file" name="file" type="file" accept=".md,.markdown" required />
+      <label for="title">Title (optional)</label>
+      <input id="title" name="title" type="text" />
+      <label for="description">Description (optional)</label>
+      <textarea id="description" name="description" rows="3"></textarea>
+      <label class="checkbox">
+        <input type="checkbox" name="is_public" value="true" />
+        Make public
+      </label>
+      <button type="submit">Upload</button>
+    </form>
+  </details>
+
+  <details class="section">
+    <summary>Review and process markdowns</summary>
+    <p>Scan the markdown directory for new files and auto-enrich missing metadata.</p>
+    <form action="/manage/process" method="post">
+      <button type="submit">Review and Process Markdowns</button>
+    </form>
+    {% if process_summary %}
+    <div class="summary">
+      <div>New files found: {{ process_summary.new_files }}</div>
+      <div>Enriched: {{ process_summary.enriched }}</div>
+      <div>Skipped (already indexed): {{ process_summary.skipped }}</div>
+      <div>Errors: {{ process_summary.errors }}</div>
+    </div>
+    {% endif %}
+  </details>
+
+  <details class="section" open>
+    <summary>Manage existing files</summary>
+    <table class="results-table compact">
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Title</th>
+          <th>Visibility</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.filename }}</td>
+          <td>{{ row.title or "-" }}</td>
+          <td>
+            <form action="/manage/toggle" method="post" class="inline-form">
+              <input type="hidden" name="filename" value="{{ row.filename }}" />
+              <select name="is_public" onchange="this.form.submit()">
+                <option value="true" {% if row.is_public %}selected{% endif %}>Public</option>
+                <option value="false" {% if not row.is_public %}selected{% endif %}>Private</option>
+              </select>
+            </form>
+          </td>
+          <td>
+            <form action="/manage/delete" method="post" class="inline-form">
+              <input type="hidden" name="filename" value="{{ row.filename }}" />
+              <button type="submit" class="danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="empty-row">No files indexed yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <form action="/manage/update-metadata" method="post" class="stack">
+      <button type="submit">Update metadata for all files</button>
+    </form>
+  </details>
+</section>
+{% endblock %}

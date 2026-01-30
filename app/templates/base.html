@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ page_title or "TheDocs" }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">TheDocs</div>
+      <nav class="site-nav">
+        <a href="/" class="nav-link">Home</a>
+        {% if is_authenticated %}
+        <a href="/manage" class="nav-link">Upload</a>
+        <form action="/logout" method="post" class="nav-inline">
+          <button class="nav-button" type="submit">Logout</button>
+        </form>
+        {% else %}
+        <a href="/login" class="nav-link">Login</a>
+        {% endif %}
+        <button id="themeToggle" class="nav-button" type="button">Theme</button>
+      </nav>
+    </header>
+    <main class="site-main">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="site-footer">Markdown Search &amp; Upload</footer>
+    <script src="/static/js/theme.js"></script>
+  </body>
+</html>

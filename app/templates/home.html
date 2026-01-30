@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="home-layout">
+  <div class="search-panel">
+    <h1>Search your markdown vault</h1>
+    <form class="search-form" method="get" action="/">
+      <label for="q">Search by filename, title, or description</label>
+      <div class="search-row">
+        <input
+          id="q"
+          name="q"
+          type="search"
+          placeholder="Try: release notes"
+          value="{{ query }}"
+        />
+        <button type="submit">Search</button>
+      </div>
+    </form>
+    <div class="search-meta">
+      {{ results|length }} files
+      {% if is_authenticated %}
+      <span class="pill">Admin view</span>
+      {% else %}
+      <span class="pill">Public only</span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="results-panel">
+    <table class="results-table">
+      <thead>
+        <tr>
+          <th>Filename</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Public</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in results %}
+        <tr>
+          <td>
+            <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
+          </td>
+          <td>{{ row.title or "-" }}</td>
+          <td>{{ row.description or "-" }}</td>
+          <td>{{ "Yes" if row.is_public else "No" }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="empty-row">No files found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}
