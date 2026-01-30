@@ -281,14 +281,19 @@ def process_markdowns(request: Request):
 
     default_public = False
     new_files = store.sync_new_files(default_public)
-    existing_rows = {row.filename: {"title": row.title, "description": row.description} for row in store.list_rows()}
-    updates, errors = _build_metadata_updates(new_files, existing_rows)
+    rows = store.list_rows()
+    existing_rows = {row.filename: {"title": row.title, "description": row.description} for row in rows}
+    missing_existing = [row.filename for row in rows if not row.title or not row.description]
+    candidates = sorted(set(new_files + missing_existing))
+    updates, errors = _build_metadata_updates(candidates, existing_rows)
     store.update_missing_metadata(updates)
 
+    total_indexed = len(rows)
+    skipped = max(total_indexed - len(new_files) - len(missing_existing), 0)
     summary = {
         "new_files": len(new_files),
         "enriched": len(updates),
-        "skipped": len(store.list_markdown_files()) - len(new_files),
+        "skipped": skipped,
         "errors": errors,
     }
     _flash(request, "process_summary", summary)
