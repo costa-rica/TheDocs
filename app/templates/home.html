@@ -61,10 +61,10 @@
   </div>
   <div class="home-right">
     <div class="results-panel">
-      <table class="results-table">
+      <h2 class="panel-title">Your Docs</h2>
+      <table class="results-table docs-table">
         <thead>
           <tr>
-            <th>Filename</th>
             <th>Title</th>
             <th>Description</th>
           </tr>
@@ -73,9 +73,11 @@
           {% for row in rows %}
           <tr>
             <td>
-              <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
+              <div class="doc-title">{{ row.title or "-" }}</div>
+              <div class="doc-filename">
+                (<a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>)
+              </div>
             </td>
-            <td>{{ row.title or "-" }}</td>
             <td>{{ row.description or "-" }}</td>
           </tr>
           {% else %}

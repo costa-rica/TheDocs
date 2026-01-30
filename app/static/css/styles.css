@@ -162,6 +162,11 @@ a:hover {
   flex-wrap: wrap;
 }
 
+.search-row input[type="search"] {
+  flex: 1 1 100%;
+  width: 100%;
+}
+
 input,
 textarea,
 select {
@@ -228,6 +233,32 @@ button.danger {
 .results-table th:first-child,
 .results-table td:first-child {
   width: 70%;
+}
+
+.docs-table th:first-child,
+.docs-table td:first-child {
+  width: 30%;
+}
+
+.docs-table th:last-child,
+.docs-table td:last-child {
+  width: 70%;
+}
+
+.panel-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-display);
+  color: var(--accent);
+}
+
+.doc-title {
+  font-weight: 600;
+}
+
+.doc-filename {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
 }
 
 .results-table.compact th,
