@@ -12,6 +12,10 @@ class AppConfig:
     gmail_smtp_host: Optional[str]
     gmail_smtp_port: Optional[int]
     openai_api_key: Optional[str]
+    elasticsearch_url: Optional[str]
+    elasticsearch_index: str
+    elasticsearch_username: Optional[str]
+    elasticsearch_password: Optional[str]
     secret_key: str
     name_app: str
     run_environment: str
@@ -29,6 +33,10 @@ def load_config() -> AppConfig:
         gmail_smtp_host=os.getenv("GMAIL_SMTP_HOST"),
         gmail_smtp_port=gmail_port,
         openai_api_key=os.getenv("OPENAI_API_KEY"),
+        elasticsearch_url=os.getenv("ELASTICSEARCH_URL"),
+        elasticsearch_index=os.getenv("ELASTICSEARCH_INDEX", "thedocs-markdown"),
+        elasticsearch_username=os.getenv("ELASTICSEARCH_USERNAME"),
+        elasticsearch_password=os.getenv("ELASTICSEARCH_PASSWORD"),
         secret_key=os.getenv("SECRET_KEY", ""),
         name_app=os.getenv("NAME_APP", ""),
         run_environment=os.getenv("RUN_ENVIRONMENT", ""),

@@ -216,6 +216,12 @@ button.danger {
   padding: 0.75rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
+  word-break: break-word;
+}
+
+.results-table th:first-child,
+.results-table td:first-child {
+  width: 70%;
 }
 
 .results-table.compact th,
@@ -295,7 +301,8 @@ summary {
 }
 
 .viewer {
-  max-width: 900px;
+  max-width: 95%;
+  width: 95%;
   margin: 0 auto;
   background: var(--panel);
   padding: 2.5rem;

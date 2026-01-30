@@ -13,9 +13,11 @@ TheDocs is a FastAPI web app for indexing, searching, and viewing external markd
 ## Usage
 
 1. Set the required environment variables in `.env`.
-2. Run the server: `uvicorn app.main:app --reload`.
-   - use `./venv/bin/uvicorn app.main:app --reload` of `python -m uvicorn app.main:app --reload` locally.
-3. Open the app at `http://127.0.0.1:8000`.
+2. Start Elasticsearch locally (example Docker command):
+   - `docker run -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.12.2`
+3. Run the server: `uvicorn app.main:app --reload`.
+   - use `./venv/bin/uvicorn app.main:app --reload` or `python -m uvicorn app.main:app --reload` locally.
+4. Open the app at `http://127.0.0.1:8000`.
 
 ## Project Structure
 
@@ -29,12 +31,14 @@ TheDocs/
 │   ├── services/
 │   │   ├── email_service.py   # SMTP email sender
 │   │   ├── index_store.py     # CSV and file store utilities
-│   │   └── openai_client.py   # OpenAI metadata helper
+│   │   ├── openai_client.py   # OpenAI metadata helper
+│   │   └── search_service.py   # Elasticsearch integration
 │   ├── static/
 │   │   ├── css/
 │   │   │   └── styles.css     # App styling
 │   │   └── js/
-│   │       └── theme.js       # Theme persistence
+│   │       ├── theme.js       # Theme persistence
+│   │       └── search.js      # Live search
 │   ├── templates/
 │   │   ├── base.html          # Layout and navigation
 │   │   ├── home.html          # Search and listing
@@ -62,6 +66,10 @@ GMAIL_SMTP_APP_PASSWORD=
 GMAIL_SMTP_HOST=
 GMAIL_SMTP_PORT=
 OPENAI_API_KEY=
+ELASTICSEARCH_URL=http://localhost:9200
+ELASTICSEARCH_INDEX=thedocs-markdown
+ELASTICSEARCH_USERNAME=
+ELASTICSEARCH_PASSWORD=
 SECRET_KEY=
 NAME_APP=TheDocs
 RUN_ENVIRONMENT=development

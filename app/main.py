@@ -1,11 +1,12 @@
 import os
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from loguru import logger
@@ -18,6 +19,7 @@ from app.core.security import build_serializer, generate_verification_token, ver
 from app.services.email_service import send_verification_email
 from app.services.index_store import IndexStore
 from app.services.openai_client import OpenAIService
+from app.services.search_service import SearchResult, SearchService
 
 load_dotenv()
 configure_logging()
@@ -51,6 +53,12 @@ store = IndexStore(config.path_project_resources)
 store.ensure_directories()
 
 openai_service = OpenAIService(config.openai_api_key)
+search_service = SearchService(
+    url=config.elasticsearch_url,
+    index_name=config.elasticsearch_index,
+    username=config.elasticsearch_username,
+    password=config.elasticsearch_password,
+)
 serializer = build_serializer(config.secret_key)
 
 TOKEN_TTL_MINUTES = int(os.getenv("TOKEN_TTL_MINUTES", "15"))
@@ -82,6 +90,19 @@ def _load_prompt(markdown_text: str) -> str:
     return template.replace("{markdown_file_content}", markdown_text)
 
 
+def _index_markdown_files(filenames: List[str]) -> None:
+    if not search_service.is_enabled():
+        return
+    rows = {row.filename: row.is_public for row in store.list_rows()}
+    for filename in filenames:
+        path = store.markdown_dir / filename
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8", errors="ignore")
+        is_public = rows.get(filename, False)
+        search_service.index_document(filename, content, is_public)
+
+
 def _build_metadata_updates(
     filenames: List[str],
     existing: Dict[str, Dict[str, str]],
@@ -111,29 +132,94 @@ def _build_metadata_updates(
     return updates, errors
 
 
-@app.get("/", response_class=HTMLResponse)
-def home(request: Request, q: Optional[str] = None):
+def _run_search(query: str, is_authenticated: bool) -> List[SearchResult]:
+    public_only = not is_authenticated
+    if search_service.is_enabled():
+        results = search_service.search(query, public_only=public_only, size=50)
+        if results is not None:
+            return results
+    return _fallback_search(query, public_only=public_only)
+
+
+def _fallback_search(query: str, public_only: bool) -> List[SearchResult]:
+    query = query.strip()
+    if not query:
+        return []
     rows = store.list_rows()
-    query = (q or "").strip().lower()
-    if not _is_authenticated(request):
+    if public_only:
         rows = [row for row in rows if row.is_public]
 
+    phrase = _extract_phrase(query)
+    term = phrase or query
+    results: List[SearchResult] = []
+    window = 25
+    for row in rows:
+        path = store.markdown_dir / row.filename
+        if not path.exists():
+            continue
+        content = path.read_text(encoding="utf-8", errors="ignore")
+        matches = _find_matches(content, term)
+        for start in matches:
+            end = start + len(term)
+            snippet_start = max(start - window, 0)
+            snippet_end = min(end + window, len(content))
+            snippet = content[snippet_start:snippet_end]
+            if snippet_start > 0:
+                snippet = "..." + snippet
+            if snippet_end < len(content):
+                snippet = snippet + "..."
+            results.append(SearchResult(snippet=snippet, filename=row.filename))
+    return results[:100]
+
+
+def _extract_phrase(query: str) -> Optional[str]:
+    match = re.search(r"\"([^\"]+)\"", query)
+    return match.group(1).strip() if match else None
+
+
+def _find_matches(content: str, term: str) -> List[int]:
+    if not term:
+        return []
+    content_lower = content.lower()
+    term_lower = term.lower()
+    indexes: List[int] = []
+    start = 0
+    while True:
+        idx = content_lower.find(term_lower, start)
+        if idx == -1:
+            break
+        indexes.append(idx)
+        start = idx + len(term_lower)
+    return indexes
+
+
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request, q: Optional[str] = None):
+    query = (q or "").strip()
+    results: List[SearchResult] = []
     if query:
-        filtered = []
-        for row in rows:
-            haystack = f"{row.filename} {row.title} {row.description}".lower()
-            if query in haystack:
-                filtered.append(row)
-        rows = filtered
+        results = _run_search(query, _is_authenticated(request))
 
     context = {
         "request": request,
-        "results": rows,
+        "results": results,
         "query": q or "",
         "is_authenticated": _is_authenticated(request),
         "page_title": "TheDocs",
     }
     return templates.TemplateResponse("home.html", context)
+
+
+@app.get("/search")
+def search(request: Request, q: Optional[str] = None):
+    query = (q or "").strip()
+    results = _run_search(query, _is_authenticated(request))
+    payload = {
+        "query": query,
+        "count": len(results),
+        "results": [{"snippet": r.snippet, "filename": r.filename} for r in results],
+    }
+    return JSONResponse(payload)
 
 
 @app.get("/markdown/{filename}", response_class=HTMLResponse)
@@ -270,6 +356,8 @@ def upload_file(
     updates, _errors = _build_metadata_updates([filename], existing)
     store.update_missing_metadata(updates)
 
+    _index_markdown_files([filename])
+
     _flash(request, "notice", f"Uploaded {filename}.")
     return RedirectResponse(url="/manage", status_code=303)
 
@@ -288,6 +376,8 @@ def process_markdowns(request: Request):
     updates, errors = _build_metadata_updates(candidates, existing_rows)
     store.update_missing_metadata(updates)
 
+    _index_markdown_files(store.list_markdown_files())
+
     total_indexed = len(rows)
     skipped = max(total_indexed - len(new_files) - len(missing_existing), 0)
     summary = {
@@ -305,6 +395,7 @@ def toggle_visibility(request: Request, filename: str = Form(...), is_public: st
     if not _is_authenticated(request):
         return RedirectResponse(url="/login", status_code=303)
     store.toggle_public(filename, is_public == "true")
+    search_service.update_visibility(filename, is_public == "true")
     _flash(request, "notice", f"Updated visibility for {filename}.")
     return RedirectResponse(url="/manage", status_code=303)
 
@@ -315,6 +406,7 @@ def delete_file(request: Request, filename: str = Form(...)):
         return RedirectResponse(url="/login", status_code=303)
     store.delete_markdown_file(filename)
     store.delete_row(filename)
+    search_service.delete_document(filename)
     _flash(request, "notice", f"Deleted {filename}.")
     return RedirectResponse(url="/manage", status_code=303)
 

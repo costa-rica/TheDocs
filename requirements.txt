@@ -8,3 +8,4 @@ openai
 markdown-it-py
 itsdangerous
 python-multipart
+elasticsearch

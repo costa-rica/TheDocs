@@ -4,20 +4,20 @@
   <div class="search-panel">
     <h1>Search your markdown vault</h1>
     <form class="search-form" method="get" action="/">
-      <label for="q">Search by filename, title, or description</label>
+      <label for="q">Search markdown content</label>
       <div class="search-row">
         <input
           id="q"
           name="q"
           type="search"
-          placeholder="Try: release notes"
+          placeholder='Try: "release notes"'
           value="{{ query }}"
+          autocomplete="off"
         />
-        <button type="submit">Search</button>
       </div>
     </form>
     <div class="search-meta">
-      {{ results|length }} files
+      <span id="resultCount">{{ results|length }}</span> hits
       {% if is_authenticated %}
       <span class="pill">Admin view</span>
       {% else %}
@@ -29,29 +29,37 @@
     <table class="results-table">
       <thead>
         <tr>
+          <th>Snippet</th>
           <th>Filename</th>
-          <th>Title</th>
-          <th>Description</th>
-          <th>Public</th>
         </tr>
       </thead>
-      <tbody>
-        {% for row in results %}
-        <tr>
-          <td>
-            <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
-          </td>
-          <td>{{ row.title or "-" }}</td>
-          <td>{{ row.description or "-" }}</td>
-          <td>{{ "Yes" if row.is_public else "No" }}</td>
-        </tr>
+      <tbody id="searchResults">
+        {% if results %}
+          {% for row in results %}
+          <tr>
+            <td>{{ row.snippet }}</td>
+            <td>
+              <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
+            </td>
+          </tr>
+          {% endfor %}
         {% else %}
-        <tr>
-          <td colspan="4" class="empty-row">No files found.</td>
-        </tr>
-        {% endfor %}
+          <tr>
+            <td colspan="2" class="empty-row">
+              {% if query %}
+                No matches found.
+              {% else %}
+                Type to search.
+              {% endif %}
+            </td>
+          </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/search.js"></script>
 {% endblock %}
