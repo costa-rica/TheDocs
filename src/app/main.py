@@ -44,8 +44,8 @@ app.add_middleware(
     max_age=60 * 60 * 24 * 30,
 )
 
-templates = Jinja2Templates(directory="app/templates")
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+templates = Jinja2Templates(directory="src/app/templates")
+app.mount("/static", StaticFiles(directory="src/app/static"), name="static")
 
 markdown = MarkdownIt("commonmark", {"html": True, "linkify": True})
 

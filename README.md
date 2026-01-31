@@ -15,37 +15,39 @@ TheDocs is a FastAPI web app for indexing, searching, and viewing external markd
 1. Set the required environment variables in `.env`.
 2. (Optional) Start Elasticsearch locally if you want semantic-style search snippets:
    - `docker run -p 9200:9200 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:8.12.2`
-3. Run the server: `uvicorn app.main:app --reload`.
-   - use `./venv/bin/uvicorn app.main:app --reload` or `python -m uvicorn app.main:app --reload` locally.
+3. Run the server: `PYTHONPATH=src uvicorn app.main:app --reload`.
+   - use `PYTHONPATH=src ./venv/bin/uvicorn app.main:app --reload` or `PYTHONPATH=src python -m uvicorn app.main:app --reload` locally.
+   - use `uvicorn app.main:app --reload --app-dir src` or `python -m uvicorn app.main:app --reload --app-dir src` locally.
 4. Open the app at `http://127.0.0.1:8000`.
 
 ## Project Structure
 
 ```
 TheDocs/
-├── app/
-│   ├── core/
-│   │   ├── config.py          # Environment config loader
-│   │   ├── logging.py         # Loguru configuration
-│   │   └── security.py        # Token generation/verification
-│   ├── services/
-│   │   ├── email_service.py   # SMTP email sender
-│   │   ├── index_store.py     # CSV and file store utilities
-│   │   ├── openai_client.py   # OpenAI metadata helper
-│   │   └── search_service.py   # Elasticsearch integration
-│   ├── static/
-│   │   ├── css/
-│   │   │   └── styles.css     # App styling
-│   │   └── js/
-│   │       ├── theme.js       # Theme persistence
-│   │       └── search.js      # Live search
-│   ├── templates/
-│   │   ├── base.html          # Layout and navigation
-│   │   ├── home.html          # Search and listing
-│   │   ├── login.html         # Email login
-│   │   ├── manage.html        # Upload and processing
-│   │   └── viewer.html        # Markdown viewer
-│   └── main.py                # FastAPI application
+├── src/
+│   └── app/
+│       ├── core/
+│       │   ├── config.py          # Environment config loader
+│       │   ├── logging.py         # Loguru configuration
+│       │   └── security.py        # Token generation/verification
+│       ├── services/
+│       │   ├── email_service.py   # SMTP email sender
+│       │   ├── index_store.py     # CSV and file store utilities
+│       │   ├── openai_client.py   # OpenAI metadata helper
+│       │   └── search_service.py   # Elasticsearch integration
+│       ├── static/
+│       │   ├── css/
+│       │   │   └── styles.css     # App styling
+│       │   └── js/
+│       │       ├── theme.js       # Theme persistence
+│       │       └── search.js      # Live search
+│       ├── templates/
+│       │   ├── base.html          # Layout and navigation
+│       │   ├── home.html          # Search and listing
+│       │   ├── login.html         # Email login
+│       │   ├── manage.html        # Upload and processing
+│       │   └── viewer.html        # Markdown viewer
+│       └── main.py                # FastAPI application
 ├── docs/
 │   ├── LOGGING_PYTHON_V05.md
 │   ├── README-format.md
