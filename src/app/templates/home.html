@@ -2,81 +2,87 @@
 {% block content %}
 <section class="home-layout">
   <div class="home-left">
-    <div class="search-panel">
-      <h1>Search your markdown vault</h1>
-      <form class="search-form" method="get" action="/">
-        <label for="q">Search markdown content</label>
-        <div class="search-row">
-          <input
-            id="q"
-            name="q"
-            type="search"
-            placeholder='Try: "release notes"'
-            value="{{ query }}"
-            autocomplete="off"
-          />
-        </div>
-      </form>
-      <div class="search-meta">
-        <span id="resultCount">{{ results|length }}</span> hits
-        {% if is_authenticated %}
-        <span class="pill">Admin view</span>
-        {% else %}
-        <span class="pill">Public only</span>
-        {% endif %}
-      </div>
-    </div>
     <div class="results-panel">
-      <table class="results-table">
-        <thead>
-          <tr>
-            <th>Snippet</th>
-            <th>Filename</th>
-          </tr>
-        </thead>
-        <tbody id="searchResults">
-          {% if results %}
-            {% for row in results %}
-            <tr>
-              <td>{{ row.snippet }}</td>
-              <td>
-                <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
-              </td>
-            </tr>
-            {% endfor %}
-          {% else %}
-            <tr>
-              <td colspan="2" class="empty-row">
-                {% if query %}
-                  No matches found.
-                {% else %}
-                  Type to search.
-                {% endif %}
-              </td>
-            </tr>
-          {% endif %}
-        </tbody>
-      </table>
+      <details class="docs-collapse" open>
+        <summary class="panel-title">Your Docs</summary>
+        <div class="docs-content">
+          <table class="results-table docs-table">
+            <tbody>
+              {% for row in rows %}
+              <tr>
+                <td>
+                  <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>{% if row.title %} ({{ row.title }}){% endif %}
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td class="empty-row">No files found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </div>
   </div>
   <div class="home-right">
-    <div class="results-panel">
-      <h2 class="panel-title">Your Docs</h2>
-      <table class="results-table docs-table">
-        <tbody>
-          {% for row in rows %}
-          <tr>
-            <td>
-              <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>{% if row.title %} ({{ row.title }}){% endif %}
-            </td>
-          </tr>
+    <div class="search-section">
+      <div class="search-header">
+        <h1>Search your markdown vault</h1>
+        <form class="search-form" method="get" action="/">
+          <label for="q">Search markdown content</label>
+          <div class="search-row">
+            <input
+              id="q"
+              name="q"
+              type="search"
+              placeholder='Try: "release notes"'
+              value="{{ query }}"
+              autocomplete="off"
+            />
+          </div>
+        </form>
+        <div class="search-meta">
+          <span id="resultCount">{{ results|length }}</span> hits
+          {% if is_authenticated %}
+          <span class="pill">Admin view</span>
           {% else %}
-          <tr>
-            <td class="empty-row">No files found.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          <span class="pill">Public only</span>
+          {% endif %}
+        </div>
+      </div>
+      <div class="search-results">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Snippet</th>
+              <th>Filename</th>
+            </tr>
+          </thead>
+          <tbody id="searchResults">
+            {% if results %}
+              {% for row in results %}
+              <tr>
+                <td>{{ row.snippet }}</td>
+                <td>
+                  <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="2" class="empty-row">
+                  {% if query %}
+                    No matches found.
+                  {% else %}
+                    Type to search.
+                  {% endif %}
+                </td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </section>
