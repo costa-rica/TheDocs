@@ -4,12 +4,15 @@
   <div class="home-left">
     <div class="results-panel">
       <details class="docs-collapse" open>
-        <summary class="panel-title">Your Docs</summary>
+        <summary class="panel-title">
+          Your Docs
+          <button type="button" id="sortDocsBtn" class="sort-btn" aria-label="Sort documents">⇅</button>
+        </summary>
         <div class="docs-content">
           <table class="results-table docs-table">
-            <tbody>
+            <tbody id="docsTableBody">
               {% for row in rows %}
-              <tr>
+              <tr data-filename="{{ row.filename }}">
                 <td>
                   <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>{% if row.title %} ({{ row.title }}){% endif %}
                 </td>
@@ -90,4 +93,5 @@
 
 {% block scripts %}
 <script src="/static/js/search.js"></script>
+<script src="/static/js/docs-sort.js"></script>
 {% endblock %}

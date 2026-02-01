@@ -256,6 +256,32 @@ button.danger {
   margin: 0 0 1rem;
   font-family: var(--font-display);
   color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  font-size: 1rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--transition);
+  line-height: 1;
+}
+
+.sort-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+  transform: translateY(-1px);
+  box-shadow: var(--glow);
+}
+
+.sort-btn:active {
+  transform: translateY(0);
 }
 
 .docs-collapse summary {
@@ -281,6 +307,10 @@ button.danger {
   .docs-collapse summary {
     cursor: default;
     pointer-events: none;
+  }
+
+  .docs-collapse summary .sort-btn {
+    pointer-events: auto;
   }
 
   .docs-collapse summary::before {
