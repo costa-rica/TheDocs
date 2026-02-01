@@ -63,26 +63,16 @@
     <div class="results-panel">
       <h2 class="panel-title">Your Docs</h2>
       <table class="results-table docs-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Description</th>
-          </tr>
-        </thead>
         <tbody>
           {% for row in rows %}
           <tr>
             <td>
-              <div class="doc-title">{{ row.title or "-" }}</div>
-              <div class="doc-filename">
-                (<a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>)
-              </div>
+              <a href="/markdown/{{ row.filename }}">{{ row.filename }}</a>{% if row.title %} ({{ row.title }}){% endif %}
             </td>
-            <td>{{ row.description or "-" }}</td>
           </tr>
           {% else %}
           <tr>
-            <td colspan="3" class="empty-row">No files found.</td>
+            <td class="empty-row">No files found.</td>
           </tr>
           {% endfor %}
         </tbody>
